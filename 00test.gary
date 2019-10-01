@@ -1,0 +1,12 @@
+integer:my_number = 4
+
+function square
+{
+    in(integer:num)
+    out(integer:out)
+
+
+    out = num * num;
+}
+
+call square(my_number)
