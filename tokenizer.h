@@ -14,10 +14,10 @@
 
 typedef enum {
     NUMBER,
-    LETTER,
+    NAME,
     OPERATOR,
     PAREN,
-    QUOTE,
+    STRING,
     BRACE
 } TokenType;
 
