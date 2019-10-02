@@ -1,4 +1,4 @@
-integer:my_number = 4
+integer:mynumber = 4
 
 function square
 {
@@ -9,4 +9,4 @@ function square
     out = num * num;
 }
 
-call square(my_number)
+out(square(my_number))
