@@ -1,7 +1,6 @@
-integer:mynumber = 4
+integer:mynumber -> 4
 
-function square
-{
+function:square -> {
     in(integer:num)
     out(integer:out)
 
