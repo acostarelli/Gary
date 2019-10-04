@@ -11,6 +11,7 @@
 #define IS_PAREN(c) (c == '(' || c == ')')
 #define IS_QUOTE(c) (c == '"')
 #define IS_BRACE(c) (c == '{' || c == '}')
+#define IS_COLON(c) (c == ':')
 
 typedef enum {
     NUMBER,
@@ -18,27 +19,15 @@ typedef enum {
     OPERATOR,
     PAREN,
     STRING,
-    BRACE
+    BRACE,
+    COLON
 } TokenType;
 
 typedef struct {
     TokenType name;
     char *value;
     int value_length;
+    struct Token *next;
 } Token;
-
-typedef struct {
-    Token *tokens;
-    size_t used;
-    size_t size;
-} TokenArray;
-
-void TokenArray_init(TokenArray *ta, size_t size);
-
-void TokenArray_add(TokenArray *ta, Token *t);
-
-void TokenArray_clear(TokenArray *ta);
-
-void tokenize(char *code, TokenArray *ta);
 
 #endif
