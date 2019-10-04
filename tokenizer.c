@@ -5,7 +5,9 @@
 #include <stdlib.h>
 #include <string.h>
 
-void tokenize(char *code, TokenArray *ta) {
+void tokenize(char *code, Token *first) {
+    Token *prev = first; // kinda weird but it's a linked list
+
     while(*code != '\0') {
         Token t;
 
@@ -19,7 +21,9 @@ void tokenize(char *code, TokenArray *ta) {
                 code++;
             }
 
-            TokenArray_add(ta, &t);
+            //TokenArray_add(ta, &t);
+            prev->next = &t;
+            prev = &t;
         } else
         if(IS_LETTER(*code)) {
             t.name = NAME;
@@ -31,20 +35,24 @@ void tokenize(char *code, TokenArray *ta) {
                 code++;
             }
 
-            TokenArray_add(ta, &t);
-
+            prev->next = &t;
+            prev = &t;
         } else
         if(IS_OPERATOR(*code)) {
             t.name = OPERATOR;
             t.value = code;
             t.value_length = 1;
-            TokenArray_add(ta, &t);
+
+            prev->next = &t;
+            prev = &t;
         } else
         if(IS_PAREN(*code)) {
             t.name = PAREN;
             t.value = code;
             t.value_length = 1;
-            TokenArray_add(ta, &t);
+
+            prev->next = &t;
+            prev = &t;
         } else
         if(IS_QUOTE(*code)) {
             t.name = STRING;
@@ -56,13 +64,24 @@ void tokenize(char *code, TokenArray *ta) {
                 code++;
             }
 
-            TokenArray_add(ta, &t);
+            prev->next = &t;
+            prev = &t;
         } else
         if(IS_BRACE(*code)) {
             t.name = BRACE;
             t.value = code;
             t.value_length = 1;
-            TokenArray_add(ta, &t);
+
+            prev->next = &t;
+            prev = &t;
+        }
+        if(IS_COLON(*code)) {
+            t.name = COLON;
+            t.value = code;
+            t.value_length = 1;
+            
+            prev->next = &t;
+            prev = &t;
         }
         else {
             // ignore
@@ -70,27 +89,4 @@ void tokenize(char *code, TokenArray *ta) {
 
         code++;
     }
-}
-
-void TokenArray_init(TokenArray *ta, size_t size) {
-    ta->tokens = malloc(size * sizeof(Token));
-    ta->used = 0;
-    ta->size = size;
-}
-
-void TokenArray_add(TokenArray *ta, Token *t) {
-    if(ta->used == ta->size) {
-        ta->size = ta->size * 2;
-        ta->tokens = realloc(ta->tokens, ta->size * sizeof(Token));
-    }
-
-    ta->tokens[ta->used++] = *t;
-}
-
-void TokenArray_clear(TokenArray *ta) {
-    free(ta->tokens);
-    ta->tokens = NULL;
-
-    ta->used = 0;
-    ta->size = 0;
 }
