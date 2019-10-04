@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <string.h>
 
 #include "gary.h"
 #include "tokenizer.h"
@@ -8,9 +9,15 @@ int main(int argc, char **argv) {
 
     char *code = load_file(fp);
     
-    TokenArray ta;
+    Token first_token;
+    tokenize(code, &first_token);
+
+    
+
+    /*TokenArray ta;
     TokenArray_init(&ta, 10);
-    tokenize(code, &ta);
+    tokenize(code, &ta); */
+    
 
     return 0;
 }
