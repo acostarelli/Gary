@@ -18,16 +18,34 @@ typedef enum {
     NAME,
     OPERATOR,
     PAREN,
-    STRING,
+    QUOTE,
     BRACE,
+    STRING,
     COLON
 } TokenType;
 
-typedef struct {
+struct Token {
     TokenType name;
     char *value;
     int value_length;
-    struct Token *next;
-} Token;
+};
+
+struct TokenArray {
+    struct Token *tokens;
+    size_t used;
+    size_t size;
+};
+
+void TokenArray_init(struct TokenArray *ta);
+
+void TokenArray_add(struct TokenArray *ta, struct Token *t);
+
+void TokenArray_clear(struct TokenArray *ta);
+
+void tokenize(char *code, struct TokenArray *ta);
+
+void TokenArray_print(struct TokenArray *ta);
+
+void Token_print(struct Token *t);
 
 #endif
