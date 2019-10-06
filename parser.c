@@ -6,52 +6,111 @@
 /**
  * When calling this, pass the top most node and token;
  */
-void walk_ast(ASTNode *n, Token *t, int i) {
-    switch(t->name) {
+void generate_ast(struct ASTNodeArray *na, struct TokenArray *ta) {
+    for(int i = 0; i < ta->used; i++) {
+        struct Token *token = &ta->tokens[i];
+
+        walk_ast(na, token, ta, i);
+    }
+}
+
+void walk_ast(struct ASTNodeArray *na, struct Token *token, struct TokenArray *ta, int i) {
+    struct ASTNode n;
+
+    switch(token->name) {
         case NAME: {
-            ASTNode node;
+            n.token = token;
 
-            char *value = malloc(t.value_length);
-            memcpy(value, t.value, t.value_length);
-
+            ASTNodeArray_add(na, &n);
             break;
         }
-        case OPERATOR:
+        case OPERATOR: {
+            n.token = token;
 
-
+            ASTNodeArray_add(na, &n);
             break;
-        case PAREN:
+        }
+        case PAREN: {
+            if(*token->value != ')') {
+                token = &ta->tokens[++i];
+                ASTNodeArray_init(&n.inner);
+                walk_ast(&n.inner, token, ta, i);
+            }
             break;
-        
-        /* There's gotta be a simpler way to do this. */
+        }
         case NUMBER: {
-            node.type = NumberLiteral;
-            node.value = t.value;
-            node.value_length = t.value_length;
+            n.token = token;
 
+            ASTNodeArray_add(na, &n);
             break;
         }
         case STRING: {
-            node.type = StringLiteral;
-            node.value = t.value;
-            node.value_length = t.value_length;
+            n.token = token;
 
+            ASTNodeArray_add(na, &n);
             break;
         }
-        case BRACE:
-            break;
-        
+        case BRACE: {
+            puts("lower level created here");
+            if(*token->value != '}') {
+                puts("its the opener");
+                token = &ta->tokens[++i];
+                ASTNodeArray_init(&n.inner);
+                walk_ast(&n.inner, token, ta, i);
+            }
+        }
         case COLON: {
-            node.type = DefinitionExpression;
-            node.value = last.value;
+            n.token = token;
 
+            ASTNodeArray_add(na, &n);
+            break;
+        }
+        case QUOTE: {
+            n.token = token;
+
+            ASTNodeArray_add(na, &n);
             break;
         }
     }
-
-    last = t;
 }
 
-void walk_ast(ASTNode *ast) {
+void ASTNodeArray_init(struct ASTNodeArray *na) {
+    na->nodes = malloc(1 * sizeof(struct ASTNode));
+    na->used = 0;
+    na->size = 1;
+}
 
+void ASTNodeArray_add(struct ASTNodeArray *na, struct ASTNode *n) {
+    if(na->used == na->size) {
+        na->size = na->size * 2;
+        na->nodes = realloc(na->nodes, na->size * sizeof(struct ASTNode));
+    }
+
+    na->nodes[na->used++] = *n;
+}
+
+void ASTNodeArray_clear(struct ASTNodeArray *na) {
+    free(na->nodes);
+    na->nodes = NULL;
+
+    na->used = 0;
+    na->size = 0;
+}
+
+void ASTNode_print(struct ASTNode *node) {
+    if(node->token != NULL) {
+        Token_print(node->token);
+        return;
+    }
+    puts("Entering lower level");
+    ASTNodeArray_print(&node->inner);
+}
+
+void ASTNodeArray_print(struct ASTNodeArray *na) {
+    for(int i = 0; i < na->used; i++) {
+        printf("%d: ", i);
+        ASTNode_print(&na->nodes[i]);
+        printf("\n");
+    }
+    puts("Exiting lower level");
 }
