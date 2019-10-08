@@ -57,7 +57,11 @@ void walk_ast(struct ASTNodeArray *na, struct Token *token, struct TokenArray *t
                 token = &ta->tokens[++i];
                 ASTNodeArray_init(&n.inner);
                 walk_ast(&n.inner, token, ta, i);
+                n.token->value_length = 0;
             }
+
+            //n.token = NULL;
+            break;
         }
         case COLON: {
             n.token = token;
@@ -98,8 +102,10 @@ void ASTNodeArray_clear(struct ASTNodeArray *na) {
 }
 
 void ASTNode_print(struct ASTNode *node) {
-    if(node->token != NULL) {
-        Token_print(node->token);
+    puts("we made it back y'all");
+    if(node->token->value_length != 0) { // this line doesn't work with nested AST nodes
+        puts("good so far?");
+        Token_print(node->token); 
         return;
     }
     puts("Entering lower level");
@@ -107,9 +113,12 @@ void ASTNode_print(struct ASTNode *node) {
 }
 
 void ASTNodeArray_print(struct ASTNodeArray *na) {
+    puts("we in here");
     for(int i = 0; i < na->used; i++) {
         printf("%d: ", i);
+        puts("uh oh");
         ASTNode_print(&na->nodes[i]);
+        puts("we got here");
         printf("\n");
     }
     puts("Exiting lower level");
