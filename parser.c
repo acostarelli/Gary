@@ -33,8 +33,8 @@ void walk_ast(struct ASTNodeArray *na, struct Token *token, struct TokenArray *t
         case PAREN: {
             if(*token->value != ')') {
                 token = &ta->tokens[++i];
-                ASTNodeArray_init(&n.inner);
-                walk_ast(&n.inner, token, ta, i);
+                ASTNodeArray_init(n.inner);
+                walk_ast(n.inner, token, ta, i);
             }
             break;
         }
@@ -51,12 +51,13 @@ void walk_ast(struct ASTNodeArray *na, struct Token *token, struct TokenArray *t
             break;
         }
         case BRACE: {
-            puts("lower level created here");
             if(*token->value != '}') {
-                puts("its the opener");
+                puts("1");
                 token = &ta->tokens[++i];
-                ASTNodeArray_init(&n.inner);
-                walk_ast(&n.inner, token, ta, i);
+                puts("2");
+                ASTNodeArray_init(n.inner);
+                puts("3");
+                walk_ast(n.inner, token, ta, i);
                 n.token->value_length = 0;
             }
 
@@ -79,7 +80,9 @@ void walk_ast(struct ASTNodeArray *na, struct Token *token, struct TokenArray *t
 }
 
 void ASTNodeArray_init(struct ASTNodeArray *na) {
+    puts("whoop");
     na->nodes = malloc(1 * sizeof(struct ASTNode));
+    puts("mkay");
     na->used = 0;
     na->size = 1;
 }
@@ -103,22 +106,18 @@ void ASTNodeArray_clear(struct ASTNodeArray *na) {
 
 void ASTNode_print(struct ASTNode *node) {
     puts("we made it back y'all");
-    if(node->token->value_length != 0) { // this line doesn't work with nested AST nodes
-        puts("good so far?");
+    if(node->token->value_length != 0) { // ??
         Token_print(node->token); 
         return;
     }
     puts("Entering lower level");
-    ASTNodeArray_print(&node->inner);
+    ASTNodeArray_print(node->inner);
 }
 
 void ASTNodeArray_print(struct ASTNodeArray *na) {
-    puts("we in here");
     for(int i = 0; i < na->used; i++) {
         printf("%d: ", i);
-        puts("uh oh");
         ASTNode_print(&na->nodes[i]);
-        puts("we got here");
         printf("\n");
     }
     puts("Exiting lower level");
