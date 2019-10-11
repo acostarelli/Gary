@@ -41,7 +41,7 @@ void ASTNodeArray_print(struct ASTNodeArray *na);
 
 struct ASTNode {
     struct Token *token; // used for literals
-    struct ASTNodeArray inner; // used for expressions
+    struct ASTNodeArray *inner; // used for expressions
     // bruh shouldn't this ^ be a pointer? i can't get it to work that way tho
 };
 
