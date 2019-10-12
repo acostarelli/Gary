@@ -1,6 +1,7 @@
 #include "gary.h"
 
 #include <stdio.h>
+#include <stdlib.h>
 
 int get_file_size(FILE *fp) {
     fseek(fp, 0, SEEK_END);
@@ -22,4 +23,9 @@ char *load_file(FILE *fp) {
     }
 
     return start;
+}
+
+int uid() {
+    static int id = 0;
+    return id++;
 }
