@@ -1,11 +1,12 @@
-integer:mynumber -> 4
+integer:mynumber @ 4
 
-function:square -> {
+string:mystring @ "What"
+
+function:square @ {
     in(integer:num)
     out(integer:out)
 
-
-    out = num * num;
+    out @ num * num
 }
 
-out(square(my_number))
+print(square(mynumber))
