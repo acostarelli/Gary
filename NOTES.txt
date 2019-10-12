@@ -1,46 +1,36 @@
-The Gary proramming language.
+The point of this compiler is to turn the higher-level 
+language, Gary, into the lower level language, x86
+assembly code. The point of this is so that the Gary
+user may use high level structures and complex code
+without using assembly. Capice? A compiler to assembly
+is a compiler nonetheless so stop worrying about it.
 
-A functional programming language I think.
+Yes, it might resemble other languages. Who cares.
+This is your language.
 
-Compilable.
+Features of the language:
+- No type definition
+- Runs in DOS
+- Functional
 
-File format: .gary
+Some patterns for compilation:
+- All names are going to be labels. Knowing what TYPE the name is depends on how
+the name is handled when it is seen.
+    - A name followed by () means that the label should be call'd.
+    - A label standing on its own means that it points to data
+        - If the data is a string, code must be inserted so that the string is
+          treated like a literal.
+        - If the code is a number or anything else, then the label can be
+          [dereferenced] and inserted into whatever operation is happening.
+- Literals will be clearly defined.
+    - A number literal is going to start with a number
+    - A string literal is going to start with "
+    - A boolean will be either True or False
+    - A subroutine will be defined by { }
 
-Questions:
-- When should I return a value vs a pointer to a value vs taking in a pointer from paramters
-- How do I get rid of that ugly if/else if chain?
-- I decided to use a linked-list design for the AST nodes to have an
-indefinite number of parameters, since I couldn't have indefinitely sized
-nodes and an indefinite number of nodes. Should I also do this for
-the tokens rather than a dynamically sized array.
-- How can simplify this with lambdas?
-
-Ideas:
-- Maybe you don't have to have specific number vs. string literals. You
-can just have literal vs. expression and then you parse all literals
-at a later point.
-- Get rid of the repetive dynamic array definitions. Maybe even
-find an alternative. You can definitely write a type-less DA though.
-Possible alternative: instead of each Token have a pointer to a
-another Token (which didn't work because all the pointers ended
-up pointing to the same location), have each Token have literally
-another Token inside it. If you notice, you're implementation of the
-dynamic token array in the tokenize function isn't all that different
-than the linked list method. Except, in the TokenArray_add function,
-it doesn't copy a pointer, it copies the whole shebang.
-- Go through a get rid of all unnecessary comments and log statements.
-
-Parser routine:
-
-It's basically glycogenisis. You're taking one long chain of glucose and breaking it up into smaller chains which are attacked to a central chain.
-
-Each time you encounter an expression, you start a new branch.
-
-Okay let's think about this in passes.
-
-First pass: group all characters as either a literal, an expression, or just ignore it
-
-Second pass: create a hierarchy within the tokens by 
-increased the layer variable in each token depending
-on where it is
-
+Considerations:
+- Maybe setup a "dibs" system. For example, if the code encounters a name token
+  followed by a ( token, then you know it's a call expression. At that point, 
+  "dibs" can be called on the next tokens until the final closing parenthesis.
+  This prevents having to backtrack or do multiple passes.
+    - Hmm. This sounds like a stack.
