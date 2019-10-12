@@ -3,7 +3,7 @@
 
 #include "gary.h"
 #include "tokenizer.h"
-#include "parser.h"
+#include "generator.h"
 
 int main(int argc, char **argv) {
     FILE *fp = fopen("./00test.gary", "r");
@@ -15,12 +15,7 @@ int main(int argc, char **argv) {
 
     tokenize(code, &ta);
 
-    struct ASTNodeArray prog;
-    ASTNodeArray_init(&prog);
-
-    generate_ast(&prog, &ta);
-
-    ASTNodeArray_print(&prog);
+    TokenArray_print(&ta);
 
     //printf("%d \n", prog.nodes[2].token->value_length);
     
