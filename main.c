@@ -1,24 +1,18 @@
+#include "gary.h"
+#include "compiler.h"
+
 #include <stdio.h>
 #include <string.h>
 
-#include "gary.h"
-#include "tokenizer.h"
-#include "generator.h"
 
-int main(int argc, char **argv) {
-    FILE *fp = fopen("./00test.gary", "r");
+int main(void) {
+    FILE *code_fp = fopen("./00test.gary", "r");
+    char *code = load_file(code_fp);
 
-    char *code = load_file(fp);
+    FILE *stdlib_fp = fopen("./garystdlib.asm", "r");
+    char *stdlib = load_file(stdlib_fp);
 
-    struct TokenArray ta;
-    TokenArray_init(&ta);
-
-    tokenize(code, &ta);
-
-    TokenArray_print(&ta);
-
-    //printf("%d \n", prog.nodes[2].token->value_length);
-    
+    compile(code, stdout);
 
     return 0;
 }
