@@ -10,7 +10,6 @@
 #define DEBUG puts("------------------");
 
 void compile(char *c, FILE *out) {
-    puts("please");
     puts("org 100h\n");
     DEBUG;
 
@@ -18,32 +17,40 @@ void compile(char *c, FILE *out) {
         //printf("\nThe char: %c\n", *c);
 
         if(*c == '"') {
-            puts("*****it's quote my guy");
             c = print_literal(c, is_string, out);
             c++; // skip the ending quote
-            printf("and now it's %c \n", *c);
             DEBUG;
         } else
         if(is_number(*c)) {
             c = print_literal(c, is_number, out);
             DEBUG;
+        } else 
+        if(is_symbol(*c)) {
+            c = print_symbol_literal(c, out);
+            DEBUG;
         } else {
+            switch(*c) {
+                case '|': {
+                    // find next symbol
+                    // print that boy
+                    while(!is_symbol(*c)) {
+                        c++;
+                    }
+                    c = print_call_expression(c, out);
+                    DEBUG;
 
-        }
-
-        switch(*c) {
-            case '|': {
-                // find next symbol
-                // print that boy
-                while(!is_symbol(*c)) {
-                    c++;
+                    break;
                 }
-                printf("*** Started from the: %c\n", *c);
-                c = print_call_expression(c, is_symbol, out);
-                printf("*** Now we'we here: %c\n", *c);
-                DEBUG;
-
-                break;
+                case ':': {
+                    c++; // skip past the first :
+                    c = print_parameter_block(c, out);
+                }
+                case '{': {
+                    //// GOING TO NEED SOME SORT OF RECURSION
+                    c = print_function_expression(c, out);
+                }
+                default: {
+                }
             }
         }
 
