@@ -1,88 +1,52 @@
 #include "gary.h"
 #include "compiler.h"
+#include "generator.h"
 
 #include <stdio.h>
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
 
-void compile(char *c, FILE *out) {
+#define DEBUG puts("------------------");
 
-    fputs("org 100h\n", out);
+void compile(char *c, FILE *out) {
+    puts("please");
+    puts("org 100h\n");
+    DEBUG;
 
     while(*c != '\0') {
+        //printf("\nThe char: %c\n", *c);
 
         if(*c == '"') {
-            int jump_id = uid();
-            fprintf(out, "jmp _skip%d\n_literal%d: dw ", jump_id, uid());
-
-            do {
-                fputc(*c, out);
-                c++;
-            } while(*c != '"');
-
-            /*char *token;
-            tokenizer()*/
-
-            //print_literal(c, tokenizer, out);
-            print_literal(c, is_string, out);
-
-            fprintf(out, "\"\n_skip%d:\n", jump_id);
+            puts("*****it's quote my guy");
+            c = print_literal(c, is_string, out);
+            c++; // skip the ending quote
+            printf("and now it's %c \n", *c);
+            DEBUG;
         } else
-        if(*c >= '0' && *c <= '9') {
-            int jump_id = uid();
-            fprintf(out, "jmp _skip%d\n_literal%d: dw ", jump_id, uid());
+        if(is_number(*c)) {
+            c = print_literal(c, is_number, out);
+            DEBUG;
+        } else {
 
-            do {
-                fputc(*c, out);
-                c++;
-            } while(*c >= '0' && *c <= '9');
+        }
 
-            fprintf(out, "\"\n_skip%d:\n", jump_id);
+        switch(*c) {
+            case '|': {
+                // find next symbol
+                // print that boy
+                while(!is_symbol(*c)) {
+                    c++;
+                }
+                printf("*** Started from the: %c\n", *c);
+                c = print_call_expression(c, is_symbol, out);
+                printf("*** Now we'we here: %c\n", *c);
+                DEBUG;
 
-            print_literal(c, is_number, out);
-        } else
-        if(IS_ALPHA(*c)) {
-            
+                break;
+            }
         }
 
         c++;
     }
-}
-
-void print_literal(char *c, bool (*condition)(char *), FILE *out) {
-    int jump_id = uid();
-    int literal_id = uid();
-
-    fprintf(out, 
-        "jmp _skip%d\n"
-        "_literal%d: dw %s\n"
-        "_skip%d:\n"
-        "push _literal%d",
-    jump_id, literal_id, tokenizer(c, condition), jump_id, literal_id);
-}
-
-char *tokenizer(char *c, bool (*condition)(char)) {
-    char *ret;
-
-    char *copy = c;
-    size_t size = 0;
-
-    do {
-        size++;
-        copy++;
-    } while (condition(*copy));
-
-    ret = malloc(size);
-    memcpy(ret, c, size);
-
-    return ret;
-}
-
-bool is_string(char c) {
-    return c != '"';
-}
-
-bool is_number(char c) {
-    return (c >= '0' && c <= '9');
 }
