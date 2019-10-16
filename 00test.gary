@@ -5,12 +5,14 @@
 ("What" mystring | @)
 
 ({
-    :num1 num2 num3:
+    :a b c: ADD THE COLONS BACK IN LATER
 
-    ((num1 2 | +) num1 | @)
+    ((a 2 | +) a | @)
 
-    ((num1 num2 | +) return | @)
+    ((a b | +) return | @)
 } add | @)
+
+DONT WORRY ABOUT THIS CODE YET
 
 example @ {
     foo @ true
