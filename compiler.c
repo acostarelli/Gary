@@ -13,14 +13,21 @@ TODO:
 - Write your own subroutine handling code. I don't think ret and stuff would work.
 - If it's the first time seeing a symbol in a scope, create some
 blank memory for that symbol.
-- Fix the : code. You've might've done that with the break statement already
-but just check anyway.
+    - For scope: you can have variables automatically prefixed with "sub#"
+    so the print_compiled function can take the # and if it's passed then
+    it automatically sticks on the __sub# prefix.
+    - This might now allow for nested functions, but it might. You can
+    also claim that's an intentional design -- afterall, a truly functional
+    language wouldn't really need it because a function shouldn't modify
+    it's environment.
 
 */
 
-#define DEBUG puts("------------------");
+static bool IS_DEBUG = true;
+#define DEBUG if(IS_DEBUG) { puts("------------------"); }
 
 static struct Stack sub_stack;
+//static struct int subid -1;
 
 void compile(char *c, FILE *out) {
     puts("org 100h\n");
@@ -33,22 +40,22 @@ void compile(char *c, FILE *out) {
 
     Stack_init(&sub_stack);
 
-    print_compiled(c, out);
+    print_compiled(c, -1, out);
 }
 
-char *print_compiled(char *c, FILE *out) {
+char *print_compiled(char *c, int subid, FILE *out) {
     while(*c != '\0') {
         if(*c == '"') {
-            c = print_literal(c, is_string, out);
+            c = print_literal(c, is_string, subid, out);
             c++; // skip the ending quote
             DEBUG;
         } else
         if(is_number(*c)) {
-            c = print_literal(c, is_number, out);
+            c = print_literal(c, is_number, subid, out);
             DEBUG;
-        } else 
+        } else
         if(is_symbol(*c)) {
-            c = print_symbol_literal(c, out);
+            c = print_symbol_literal(c, subid, out);
             DEBUG;
         } else {
             switch(*c) {
@@ -58,7 +65,7 @@ char *print_compiled(char *c, FILE *out) {
                     while(!is_symbol(*c)) {
                         c++;
                     }
-                    c = print_call_expression(c, out);
+                    c = print_call_expression(c, subid, out); // should it pass subid?
                     DEBUG;
 
                     break;
@@ -75,13 +82,13 @@ char *print_compiled(char *c, FILE *out) {
 
                     fprintf(out,
                         "jmp _skip%d\n"
-                        "*****_sub%d:\n",
+                        "_sub%d:\n",
                     jump_id, sub_id);
 
                     DEBUG;
 
                     Stack_push(&sub_stack, sub_id);
-                    c = print_compiled(c+1, out);
+                    c = print_compiled(c+1, uid(), out);
 
                     fprintf(out,
                         "_skip%d:\n"
