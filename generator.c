@@ -1,6 +1,7 @@
 #include "generator.h"
 #include "compiler.h"
 #include "lookup.h"
+#include "gary.h"
 
 #include <stdio.h>
 #include <stdbool.h>
@@ -54,6 +55,7 @@ void print_CallExp(char *token, int sub_id, FILE *out) {
     } else {
         fprintf(out, "call %s\n", symbol);
     }
+    fputs("push ax\n", out);
 }
 
 /**
@@ -64,17 +66,21 @@ void print_CallExp(char *token, int sub_id, FILE *out) {
           function returns
  */
 
-void print_ParamBlock(char **c, int sub_id, FILE *out) {
+void print_ParamBlock(char **c, int sub_id, struct DynStrArray *symbol_list, FILE *out) {
     char *ret;
 
     struct DynStrArray pb;
     DynStrArray_init(&pb);
 
-    int jump_id = uid();
+    int jump1_id = uid();
+    int jump2_id = uid();
     fprintf(out,
         "jmp _skip%d\n"
-        "__sub%d_return: dw 0\n",
-    jump_id, sub_id);
+        "__sub%d_ip: dw 0\n"
+        "_skip%d:\n"
+        "pop word [__sub%d_ip]\n"
+        "jmp _skip%d\n",
+    jump1_id, sub_id, jump1_id, sub_id, jump2_id);
 
     while(**c != ':') {
         skip_until(c, is_symbol);
@@ -82,13 +88,17 @@ void print_ParamBlock(char **c, int sub_id, FILE *out) {
         char *param;
         read_token(&param, c, is_symbol);
 
-        fprintf(out, "%s: dw 0\n", param);
+        fprintf(out, "__sub%d_%s: dw 0\n", sub_id, param);
         DynStrArray_add(&pb, param);
+
+        char true_param[20];
+        sprintf(true_param, "__sub%d_%s", sub_id, param);
+        DynStrArray_add(symbol_list, true_param);
     }
 
-    fprintf(out, "_skip%d:\n", jump_id);
+    fprintf(out, "_skip%d:\n", jump2_id);
     for(int i = pb.used; i > 0; i--) {
-        printf("pop __sub%d_%s\n", sub_id, *(pb.items + i - 1));
+        fprintf(out, "pop word [__sub%d_%s]\n", sub_id, *(pb.items + i - 1));
     }
 }
 
@@ -105,6 +115,5 @@ void read_token(char **token, char **c, bool (*condition)(char)) {
     memcpy(*token, *c, size);
     (*token)[size] = '\0';
 
-    //*token = symbol_lookup(*token);
     *c = ptr;
 }
