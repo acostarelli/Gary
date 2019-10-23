@@ -6,11 +6,17 @@
 #include <string.h>
 
 
-int main(void) {
-    FILE *code_fp = fopen("./00test.gary", "r");
-    char *code = load_file(code_fp);
+int main(int argc, char **argv) {
+    if(argc < 3) {
+        printf("Use: %s [file.gary] [output.asm]\n", argv[0]);
+        return 1;
+    }
 
-    compile(code, stdout);
+    FILE *code_fp = fopen(argv[1], "r");
+    FILE *out_fp  = fopen(argv[2], "w");
+
+    char *code = load_file(code_fp);
+    compile(code, out_fp);
 
     return 0;
 }
