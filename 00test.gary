@@ -9,7 +9,7 @@
 ({
     :michael has no:
 
-    ((a 2 | +) a | @)
+    ((michael 2 | +) a | @)
 
     ((a b | +) return | @)
 } add | @)
