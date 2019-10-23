@@ -2,24 +2,14 @@
 
 (4 mynumber | @)
 
+(mynumber 2 | +)
+
 ("What" mystring | @)
 
 ({
-    :a b c: ADD THE COLONS BACK IN LATER
+    :michael has no:
 
     ((a 2 | +) a | @)
 
     ((a b | +) return | @)
 } add | @)
-
-DONT WORRY ABOUT THIS CODE YET
-
-example @ {
-    foo @ true
-
-    loop{
-        foo @ false
-    }
-}
-
-((mynumber 3 | add) | print)
