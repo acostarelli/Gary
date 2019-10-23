@@ -20,10 +20,11 @@ struct SymbolLookup {
     "-", "__gary_subtraction",
     "*", "__gary_multiplication",
     "/", "__gary_division",
-    "^", "__gary_exponent"
+    "^", "__gary_exponent",
+    "print", "__gary_print"
 };
 char *symbol_lookup(char *sym) {
-    for(int i = 0; i < 6; i++) {
+    for(int i = 0; i < 7; i++) {
         if(strcmp(sym, symbols[i].symbol) == 0) {
             return symbols[i].equiv;
         }
