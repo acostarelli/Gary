@@ -11,9 +11,6 @@
 /**
 
 TODO:
-- Write your own subroutine handling code. I don't think ret and stuff would work.
-- If it's the first time seeing a symbol in a scope, create some
-blank memory for that symbol.
 - Arrays
 - Remove all comments
 - Neaten up code
@@ -21,7 +18,7 @@ blank memory for that symbol.
 
 */
 
-static bool IS_DEBUG = true;
+static bool IS_DEBUG = false;
 #define DEBUG if(IS_DEBUG) { puts("------------------"); }
 
 static struct Stack sub_stack;
@@ -29,13 +26,11 @@ static struct DynStrArray symbol_list;
 //static struct int subid -1;
 
 void compile(char *c, FILE *out) {
-    puts("org 100h\n");
+    fputs("org 100h\n%include \"garystdlib.asm\"\n", out);
     DEBUG;
 
     Stack_init(&sub_stack);
     DynStrArray_init(&symbol_list);
-
-    puts("pretty please?");
 
     print_compiled(&c, 0, out);
 }
@@ -72,7 +67,7 @@ void print_compiled(char **c, int sub_id, FILE *out) {
                 }
                 case ':': {
                     *c = *c + 1;
-                    print_ParamBlock(c, sub_id, out);
+                    print_ParamBlock(c, sub_id, &symbol_list, out);
                     DEBUG;
                     break;
                 }
@@ -98,6 +93,13 @@ void print_compiled(char **c, int sub_id, FILE *out) {
                     break;
                 }
                 case '}': {
+                    int last_sub = Stack_pop(&sub_stack);
+
+                    fprintf(out,
+                        "mov ax, __sub%d_return\n"
+                        "push __sub%d_ip\n"
+                        "ret\n",
+                    last_sub, last_sub);
                     return;
                 }
                 default: {
