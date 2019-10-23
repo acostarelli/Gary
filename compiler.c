@@ -1,6 +1,7 @@
 #include "gary.h"
 #include "compiler.h"
 #include "generator.h"
+#include "lookup.h"
 
 #include <stdio.h>
 #include <stdbool.h>
@@ -13,13 +14,10 @@ TODO:
 - Write your own subroutine handling code. I don't think ret and stuff would work.
 - If it's the first time seeing a symbol in a scope, create some
 blank memory for that symbol.
-    - For scope: you can have variables automatically prefixed with "sub#"
-    so the print_compiled function can take the # and if it's passed then
-    it automatically sticks on the __sub# prefix.
-    - This might now allow for nested functions, but it might. You can
-    also claim that's an intentional design -- afterall, a truly functional
-    language wouldn't really need it because a function shouldn't modify
-    it's environment.
+- Arrays
+- Remove all comments
+- Neaten up code
+- Add sufficient documentation and explanation
 
 */
 
@@ -27,68 +25,69 @@ static bool IS_DEBUG = true;
 #define DEBUG if(IS_DEBUG) { puts("------------------"); }
 
 static struct Stack sub_stack;
+static struct DynStrArray symbol_list;
 //static struct int subid -1;
 
 void compile(char *c, FILE *out) {
     puts("org 100h\n");
     DEBUG;
 
-    /*while(*c != '\0') {
-        c = print_compiled(c, out);
-        c++;
-    }*/
-
     Stack_init(&sub_stack);
+    DynStrArray_init(&symbol_list);
 
-    print_compiled(c, -1, out);
+    puts("pretty please?");
+
+    print_compiled(&c, 0, out);
 }
 
-char *print_compiled(char *c, int subid, FILE *out) {
-    while(*c != '\0') {
-        if(*c == '"') {
-            c = print_literal(c, is_string, subid, out);
-            c++; // skip the ending quote
+void print_compiled(char **c, int sub_id, FILE *out) {
+    while(**c != '\0') {
+        char *token;
+
+        if(**c == '"') {
+            read_token(&token, c, is_string);
+            print_Literal(token, sub_id, out);
             DEBUG;
         } else
-        if(is_number(*c)) {
-            c = print_literal(c, is_number, subid, out);
+        if(is_number(**c)) {
+            read_token(&token, c, is_number);
+            print_Literal(token, sub_id, out);
             DEBUG;
         } else
-        if(is_symbol(*c)) {
-            c = print_symbol_literal(c, subid, out);
+        if(is_symbol(**c)) {
+            read_token(&token, c, is_symbol);
+            print_Symbol(token, sub_id, &symbol_list, out);
+
             DEBUG;
         } else {
-            switch(*c) {
+            switch(**c) {
                 case '|': {
-                    // find next symbol
-                    // print that boy
-                    while(!is_symbol(*c)) {
-                        c++;
-                    }
-                    c = print_call_expression(c, subid, out); // should it pass subid?
+                    skip_until(c, is_symbol);
+
+                    read_token(&token, c, is_symbol);
+                    print_CallExp(token, sub_id, out);
                     DEBUG;
 
                     break;
                 }
                 case ':': {
-                    c++; // skip past the first :
-                    c = print_parameter_block(c, out);
-
+                    *c = *c + 1;
+                    print_ParamBlock(c, sub_id, out);
+                    DEBUG;
                     break;
                 }
                 case '{': {
                     int jump_id = uid();
-                    int sub_id = uid();
+                    sub_id = uid();
+                    Stack_push(&sub_stack, sub_id);
 
                     fprintf(out,
                         "jmp _skip%d\n"
                         "_sub%d:\n",
                     jump_id, sub_id);
 
-                    DEBUG;
-
-                    Stack_push(&sub_stack, sub_id);
-                    c = print_compiled(c+1, uid(), out);
+                    *c = *c + 1; // don't double-count the {
+                    print_compiled(c, sub_id, out);
 
                     fprintf(out,
                         "_skip%d:\n"
@@ -99,34 +98,20 @@ char *print_compiled(char *c, int subid, FILE *out) {
                     break;
                 }
                 case '}': {
-                    return c;
+                    return;
                 }
                 default: {
                 }
             }
         }
 
-        c++;
+        *c = *c + 1;
     }
-    return 0;
+    return;
 }
 
-void Stack_init(struct Stack *s) {
-    s->length = 0;
-}
-
-void Stack_push(struct Stack *s, int n) {
-    if(s->length == 32) {
-        perror("Stack size limit reached.");
-        return;
+void skip_until(char **c, bool (*condition)(char)) {
+    while(!condition(**c)) {
+        *c = *c + 1;
     }
-
-    s->data[s->length] = n;
-    s->length++;
-}
-
-int Stack_pop(struct Stack *s) {
-    s->length--;
-
-    return s->data[s->length];
 }
