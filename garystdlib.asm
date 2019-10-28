@@ -1,61 +1,47 @@
 jmp __gary_end
 
-; The arguments are pointers to the pointers to memory
 
 __gary_assignment:
-    jmp .mem
-    .source: dw 0
-    .dest: dw 0
-    .instp: dw 0
-    .mem:
+    pop dx
 
-    pop word [.instp]
-    pop word [.dest]
-    pop word [.source]
-
-    mov ax, [.source]           ; the pointer to the value is now in ax
-    mov bx, [.dest]
-
-    ; we want to pass the pointers around so the actual memory is modified
-    ; this assignment simply assigns pointers, not values
+    pop bx
+    pop ax
 
     mov [bx], ax
 
-    push word [.instp]
+    push dx
     ret
 
 __gary_addition:
     jmp .mem
     .a: dw 0
     .b: dw 0
-    .instp: dw 0
     .mem:
 
-    pop word [.instp]
+    pop dx
     pop word [.b]
     pop word [.a]
 
     mov ax, [.a]
     add ax, [.b]
 
-    push word [.instp]
+    push dx
     ret
 
 __gary_subtraction:
     jmp .mem
     .a: dw 0
     .b: dw 0
-    .instp: dw 0
     .mem:
 
-    pop word [.instp]
+    pop dx
     pop word [.b]
     pop word [.a]
 
     mov ax, [.a]
     sub ax, [.b]
 
-    push word [.instp]
+    push dx
     ret
 
 __gary_multiplication:
@@ -68,6 +54,10 @@ __gary_exponent:
     ret
 
 __gary_print:
+    jmp .mem
+    .a: dw 0
+    .mem:
+
     pop dx
 
     pop si
@@ -89,10 +79,17 @@ __gary_print:
 __gary_tostr:
     jmp .mem
     .a: dw 0
-    .instp: dw 0
     .mem:
 
-    push word [.instp]
+    pop dx
+
+    pop ax
+    add ax, 48
+
+    push dx
+    ret
+
+__gary_input:
     ret
 
 __gary_debug:
