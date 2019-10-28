@@ -14,12 +14,13 @@ void print_Literal(char *token, int sub_id, FILE *out) {
 
     fprintf(out,
         "jmp _skip%d\n"
-        "__sub%d_literal%d: dw %s%c\n"
+        "__sub%d_literal%d: dw %s%s\n"
         "_skip%d:\n"
         "push __sub%d_literal%d\n",
     jump_id, sub_id, literal_id, token,
-    (*token == '\"' ? '\"' : ' '), jump_id, sub_id, literal_id);
+    (*token == '\"' ? "\", 0" : " "),
     // ^ if this is a string, put the closing quote on
+    jump_id, sub_id, literal_id);
 }
 
 /**
@@ -33,15 +34,16 @@ void print_Symbol(char *token, int sub_id, struct DynStrArray *symbol_list, FILE
     sprintf(true_token, "__sub%d_%s", sub_id, token);
 
     if(DynStrArray_contains(symbol_list, true_token)) {
-        fprintf(out, "push %s\n", true_token);
+        fprintf(out, "push word [%s_ptr]\n", true_token);
     } else {
         int jump_id = uid();
         fprintf(out,
             "jmp _skip%d\n"
             "%s: dw 0\n"
+            "%s_ptr: dw %s\n"
             "_skip%d:\n"
-            "push %s\n",
-        jump_id, true_token, jump_id, true_token);
+            "push %s_ptr\n",
+        jump_id, true_token, true_token, true_token, jump_id, true_token);
 
         DynStrArray_add(symbol_list, true_token);
     }
@@ -78,7 +80,7 @@ void print_ParamBlock(char **c, int sub_id, struct DynStrArray *symbol_list, FIL
         "jmp _skip%d\n"
         "__sub%d_ip: dw 0\n"
         "_skip%d:\n"
-        "pop word [__sub%d_ip]\n"
+        "pop word __sub%d_ip\n"
         "jmp _skip%d\n",
     jump1_id, sub_id, jump1_id, sub_id, jump2_id);
 
