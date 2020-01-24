@@ -1,2 +1,0 @@
-# Gary
-A programming language
