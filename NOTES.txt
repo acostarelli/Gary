@@ -1,0 +1,89 @@
+The point of this compiler is to turn the higher-level
+language, Gary, into the lower level language, x86
+assembly code. The point of this is so that the Gary
+user may use high level structures and complex code
+without using assembly. Capice? A compiler to assembly
+is a compiler nonetheless so stop worrying about it.
+
+Yes, it might resemble other languages. Who cares.
+This is your language.
+
+Features of the language:
+- No type definition
+- Runs in DOS
+- Functional
+    - Like super functional. Functions can't modify outside state
+    - In fact, no state at all can be modified.
+    - That's right, you heard me.
+
+Some patterns for compilation:
+- All names are going to be labels. Knowing what TYPE the name is depends on how
+the name is handled when it is seen.
+    - A name followed by () means that the label should be call'd.
+    - A label standing on its own means that it points to data
+        - If the data is a string, code must be inserted so that the string is
+          treated like a literal.
+        - If the code is a number or anything else, then the label can be
+          [dereferenced] and inserted into whatever operation is happening.
+- Literals will be clearly defined.
+    - A number literal is going to start with a number
+    - A string literal is going to start with "
+    - A boolean will be either True or False
+    - A subroutine will be defined by { }
+
+Considerations:
+- Maybe setup a "dibs" system. For example, if the code encounters a name token
+  followed by a ( token, then you know it's a call expression. At that point,
+  "dibs" can be called on the next tokens until the final closing parenthesis.
+  This prevents having to backtrack or do multiple passes.
+    - Hmm. This sounds like a stack.
+
+Presentation:
+- You need to make this seem impressive regardless of the fact that
+it's not that impressive.
+
+/**
+
+TODO:
+- Arrays
+- Conditionals, loops, etc.
+- Remove all comments
+- Neaten up code
+- Add sufficient documentation and explanation
+- Flesh out stdlib more
+
+- I worry that function statements that don't have their reults passed to
+another function are going to overflow the stack.
+
+*/
+
+//static bool IS_DEBUG = true;
+//#define DEBUG if(IS_DEBUG) { fputs(";------------------\n", out); }
+
+DONT WORRY ABOUT THIS CODE YET
+
+({
+    foo @ true
+
+    loop{
+        foo @ false
+    }
+} test | @)
+
+((mynumber 3 | add) | print)
+
+-------
+
+(4 mynumber | @)
+
+(mynumber 2 | +)
+
+("What" mystring | @)
+
+({
+    :michael has no:
+
+    ((michael 2 | +) a | @)
+
+    ((a b | +) return | @)
+} add | @)

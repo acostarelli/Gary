@@ -1,0 +1,14 @@
+({
+    :numa numb:
+
+    (numa 4 | =) ? {
+        "The parameter numa is 4!" | print
+    }
+
+    return ((numa numb | +) 3 | +) | @
+} myfunction | @)
+
+myresult (4 5 | myfunction) | @
+
+"The result is " | print
+myresult | printint
